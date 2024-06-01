@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Добавить данные вручную</title>
+</head>
+<body>
+<h1>Добавить данные вручную</h1>
+
+<form method="post" action="{% url 'add_manual_data' user_id=user.id %}" class="my-4">
+
+    {% csrf_token %}
+    <label for="date">Дата:</label>
+    <input type="date" id="date" name="date">
+    <label for="time">Время:</label>
+    <input type="time" id="time" name="time">
+    <label for="spo2">SpO2:</label>
+    <input type="number" id="spo2" name="spo2">
+    <label for="heart_rate">Пульс:</label>
+    <input type="number" id="heart_rate" name="heart_rate">
+    <label for="body_temperature">Температура тела:</label>
+    <input type="number" id="body_temperature" name="body_temperature">
+    <button type="submit" class="btn btn-primary mt-2">Добавить</button>
+</form>
+
+</body>
+</html>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Регистрация{% endblock %}
+{% block content %}
+{% load static %}
+
+<div style="background-color: #A8D4D7; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+    <div style="text-align: center; background-color: #074B83; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+        <h2 style="color: #FFFFFF;">Регистрация</h2>
+        <div class="frame" style="width: 300px; margin: 0 auto; background-color: #FFFFFF; border-radius: 10px; padding: 20px;">
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-label-group" style="margin-bottom: 10px;">
+                    <input type="text" id="inputUsername" class="form-control" name="username" placeholder="Имя пользователя" required autofocus>
+                </div>
+                <div class="form-label-group" style="margin-bottom: 10px;">
+                    <input type="email" id="inputEmail" class="form-control" name="email" placeholder="Email" required>
+                </div>
+                <div class="form-label-group" style="margin-bottom: 10px;">
+                    <input type="password" id="inputPassword" class="form-control" name="password1" placeholder="Пароль" required>
+                </div>
+                <div class="form-label-group" style="margin-bottom: 10px;">
+                    <input type="password" id="inputConfirmPassword" class="form-control" name="password2" placeholder="Повторите пароль" required>
+                </div>
+                <div class="form-label-group" style="margin-bottom: 10px;">
+                    <input type="text" id="inputFirstName" class="form-control" name="first_name" placeholder="Ваше настоящее имя" required>
+                </div>
+                <div class="form-label-group" style="margin-bottom: 10px;">
+                    <input type="text" id="inputLastName" class="form-control" name="last_name" placeholder="Ваша фамилия" required>
+                </div>
+                <button class="btn btn-lg btn-primary btn-block" type="submit">Зарегистрироваться</button>
+            </form>
+        </div>
+    </div>
+    <div style="text-align: center; color: #FFFFFF; font-size: 18px;">
+        <img src="{% static 'img/logo2.png' %}" alt="Логотип CardioKit" style="width: 50px; vertical-align: top;">
+        <a href = "{% url 'login' %}" style="display: inline-block; vertical-align: top; font-size: 40px; color: #FFFFFF">CardioKit</a>
+    </div>
+</div>
+{% endblock %}

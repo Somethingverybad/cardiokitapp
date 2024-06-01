@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Личный кабинет{% endblock %}
+{% load static %}
+{% block content %}
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    .patient-button {
+        display: inline-block;
+        background-color: #4AAEC9;
+        color: #FFFFFF;
+        text-decoration: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+        margin-top: 20px;
+    }
+
+    .patient-button:hover {
+        background-color: #074B83;
+        color: #FFFFFF;
+        text-decoration: none;
+    }
+
+    .container {
+        width: 100%;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    .content-container {
+        background: #92B5BD;
+        border-radius: 20px;
+        padding: 20px;
+        margin-top: 5%;
+        text-align: center;
+    }
+
+    .content-text {
+        color: #FFFFFF;
+        max-width: 100%;
+        margin: 0 auto;
+        text-align: justify;
+        margin-bottom: 20px;
+    }
+
+    .content-image {
+        font-size: 18px;
+        margin-top: 20px;
+    }
+
+    @media screen and (max-width: 600px) {
+        .content-container {
+            width: 90%;
+            margin: 5% auto;
+        }
+    }
+</style>
+
+<body style="background-color: #A8D4D7;">
+    {% if request.user.is_authenticated %}
+    <div style="display:inline-block; position: sticky; top:0; padding:0; width: 100%; height:100%; background:#134F64; color: black; border-radius:20px; ">
+        <nav class="navbar navbar-default" style="background-color: #247E98;">
+            <div class="navbar-header">
+                <div style="text-align: center; color: #FFFFFF; font-size: 18px;margin-top: 10%">
+                    <img src="{% static 'img/logo2.png' %}" alt="Логотип CardioKit" style="width: 50px; vertical-align: top;">
+                    <p style="display: inline-block; vertical-align: top; font-size: 40px; color: #FFFFFF">CardioKit</p>
+                </div>
+            </div>
+            <div style="position:relative; top: 10%; bottom:10%; vertical-align:middle;">
+                <ul class="nav navbar-nav">
+                    <li {% if section == "dashboard" %} class="selected" {% endif %}>
+                        <a href="{% url 'profile_pat' user.id%}">Мой профиль</a>
+                    </li>
+                    {% if group_name == doc %}
+                    <li>
+                        <a href="{% url 'patients' %}" style="color: #FFFFFF;">Пациенты</a>
+                    </li>
+                    {% endif %}
+                    <li {% if section == "stats" %} class="selected" {% endif %}>
+                        <a href="{% url  'personal_cabinet' %}">Главная страница</a>
+                    </li>
+                    <li {% if section == "stats" %} class="selected" {% endif %}>
+                        <a href="{% url 'logout' %}">Выход</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+    {% endif %}
+    <div class="container">
+        <div class="content-container">
+            <h1>{{ user.first_name }}!</h1>
+            <p class="content-text">Добро пожаловать в систему дистанционного мониторинга вашего сердечно-сосудистого здоровья! Мы рады приветствовать вас в нашей платформе, где вы сможете следить за важными показателями вашей сердечно-сосудистой деятельности из любой точки мира. Вместе мы можем обеспечить вам уверенность в здоровье и помочь поддерживать активный образ жизни. Здесь вы найдете удобные инструменты для отслеживания вашего пульса, уровня кислорода в крови и других ключевых показателей. Наша цель - обеспечить вам доступ к важной информации о вашем здоровье и помочь вам принимать информированные решения. Не забывайте, что ваше здоровье - наш приоритет, и мы всегда здесь, чтобы поддерживать вас на пути к здоровому и счастливому образу жизни. Спасибо, что выбрали нас для мониторинга вашего сердечно-сосудистого состояния</p>
+            {% if group_name == doc %}
+            <div style="text-align: center;">
+                <a href="{% url 'patients' %}" class="patient-button">Перейти к пациентам</a>
+            </div>
+            {% endif %}
+            <div class="content-image">
+                <img src="{% static 'img/logo2.png' %}" alt="Логотип CardioKit" style="width: 50px;">
+            </div>
+        </div>
+    </div>
+</body>
+{% endblock %}

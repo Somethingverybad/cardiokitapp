@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Data Plot</title>
+    <!-- Подключаем библиотеку Plotly -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            background-color: #A8D4D7; /* Установка фона страницы */
+            font-family: Arial, sans-serif; /* Шрифт */
+        }
+
+        .control-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #92B5BD;
+            padding: 10px;
+            z-index: 1000;
+        }
+
+        .charts-block {
+            padding-top: 60px; /* Отступ сверху для блока с графиками */
+        }
+
+        .chart-container {
+            margin: 20px auto; /* Центрирование графиков */
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #064579; /* Цвет карточки */
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+            max-width: 90%; /* Максимальная ширина карточки */
+            overflow: hidden;
+        }
+
+        .button-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        select {
+            padding: 10px;
+            margin-left: 20px;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        #refreshButton {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            }
+        #clear {
+        padding: 10px 20px;
+            background-color: #FF0000;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Панель управления -->
+    <div class="control-panel">
+        <!-- Кнопка для остановки обновления данных -->
+        <div class="button-container">
+            <button id="refreshButton" onclick="toggleAutoRefresh()">Автообновление включено</button>
+        </div>
+        <div class="button-container">
+         <form method="post" action="{% url 'clear_patient_data_last_day' user_id %}">
+            {% csrf_token %}
+            <button id = "clear" type="submit">Очистить данные пациента за последний день</button>
+        </form>
+        </div>
+<a href="{% url 'profile_pat' user_id %}"  style="display: inline-block; padding: 10px 20px; background-color: #134F64; color: white; border: none; border-radius: 5px; text-decoration: none; cursor: pointer;">Вернуться к пациенту </a>
+        <!-- Выпадающий список для выбора типа графика -->
+        <div class="button-container">
+            <select onchange="changeChartType(this.value)">
+                <option value="bar">Столбчатая диаграмма</option>
+                <option value="scatter">Точечная диаграмма</option>
+                <option value="line">Линейный график</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Графики будут отображены здесь -->
+    <div class="charts-block">
+        <div class="chart-container" id="spo2_plot" style="width: 50%; height: 400px;"></div>
+        <div class="chart-container" id="heart_rate_plot" style="width: 50%; height: 400px;"></div>
+        <div class="chart-container" id="body_temperature_plot" style="width: 50%; height: 400px;"></div>
+    </div>
+
+    <script>
+        var autoRefreshInterval;
+        var chartType = 'bar';
+        var isAutoRefreshEnabled = true;
+
+        // Функция для загрузки и отображения данных на графиках
+        function loadPlotData() {
+            var user_id = '{{ user_id }}';  // Получаем ID пользователя из контекста
+            var url = '{{ plot_patient_data_url }}';
+
+            fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                var dates_times = data.dates_times;
+                var spo2_values = data.spo2_values;
+                var heart_rate_values = data.heart_rate_values;
+                var body_temperature_values = data.body_temperature_values;
+
+                // Условия для определения типа графика
+                var spo2_chartType = chartType != 'scatter' ? 'lines' : 'markers';
+                var heart_rate_chartType = chartType != 'scatter' ? 'lines' : 'markers';
+                var body_temperature_chartType = chartType != 'scatter' ? 'lines' : 'markers';
+
+                var spo2_trace = {
+                    x: dates_times,
+                    y: spo2_values,
+                    type: chartType,
+                    mode: spo2_chartType,
+                    name: 'SpO2',
+                    marker: { color: spo2_values.map(value => value < 90 ? 'red' : 'green') }
+                };
+
+                var heart_rate_trace = {
+                    x: dates_times,
+                    y: heart_rate_values,
+                    type: chartType,
+                    mode: heart_rate_chartType,
+                    name: 'Heart Rate',
+                    marker: { color: heart_rate_values.map(value => value < 60 || value > 100 ? 'red' : 'green') }
+                };
+
+                var body_temperature_trace = {
+                    x: dates_times,
+                    y: body_temperature_values,
+                    type: chartType,
+                    mode: body_temperature_chartType,
+                    name: 'Body Temperature',
+                    marker: { color: body_temperature_values.map(value => value < 36.5 || value > 37.5 ? 'red' : 'green') }
+                };
+
+                var layout_spo2 = {
+                    xaxis: { title: 'Date and Time' },
+                    yaxis: { title: 'SpO2, %', range: [60, 100] },
+                    xgrid: { visible: true, color: '#000000' }, // Чёрные вертикальные линии сетки
+                    ygrid: { visible: true, color: '#000000' }
+                };
+
+                var layout_heart_rate = {
+                    xaxis: { title: 'Date and Time' },
+                    yaxis: { title: 'Heart Rate, уд/мин', range: [40, 200] },
+                    xgrid: { visible: true, color: '#000000' },
+                    ygrid: { visible: true, color: '#000000' }
+                };
+
+                var layout_body_temperature = {
+                    xaxis: { title: 'Date and Time' },
+                    yaxis: { title: 'Body Temperature, °С', range: [33, 43] },
+                    xgrid: { visible: true, color: '#000000' },
+                    ygrid: { visible: true, color: '#000000' }
+                };
+
+                Plotly.newPlot('spo2_plot', [spo2_trace], layout_spo2);
+                Plotly.newPlot('heart_rate_plot', [heart_rate_trace], layout_heart_rate);
+                Plotly.newPlot('body_temperature_plot', [body_temperature_trace], layout_body_temperature);
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Функция для переключения автоматического обновления данных
+        function toggleAutoRefresh() {
+    var refreshButton = document.getElementById("refreshButton");
+    if (isAutoRefreshEnabled) {
+        clearInterval(autoRefreshInterval);
+        autoRefreshInterval = null;
+        refreshButton.textContent = "Автообновление отключено ";
+        refreshButton.style.backgroundColor = "#FF0000"; // Красный цвет кнопки
+    } else {
+        loadPlotData();
+        autoRefreshInterval = setInterval(loadPlotData, 5000); // Обновление каждые 5 секунд
+        refreshButton.textContent = "Автообновление включено";
+        refreshButton.style.backgroundColor = "#4CAF50"; // Зеленый цвет кнопки
+
+    }
+    isAutoRefreshEnabled = !isAutoRefreshEnabled;
+}
+
+
+        // Функция для изменения типа графика
+        function changeChartType(type) {
+            chartType = type;
+            // Загружаем данные с новым типом графика
+            loadPlotData();
+        }
+
+        // Загружаем данные при загрузке страницы и начинаем автоматическое обновление
+        window.onload = function() {
+            loadPlotData();
+            autoRefreshInterval = setInterval(loadPlotData, 5000); // Обновление каждые 5 секунд
+        };
+    </script>
+</body>
+</html>

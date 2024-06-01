@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Войти{% endblock %}
+{% block content %}
+{% load static %}
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        max-width: 100%;
+    }
+
+    .login-container {
+        background-color: #074B83;
+        border-radius: 50px;
+        padding: 20px;
+        text-align: center;
+    }
+
+    h1 {
+        color: #FFFFFF;
+    }
+
+    p {
+        color: #FFFFFF;
+    }
+
+    .login-form {
+        width: 300px;
+        margin: 20px auto;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+        border-radius: 5px;
+        padding: 5px;
+        width: 100%;
+        box-sizing: border-box; /* добавлено для правильного отображения внутреннего размера элемента */
+    }
+
+    button {
+        border-radius: 5px;
+        padding: 5px;
+    }
+
+    .register-link {
+        display: inline-block;
+        background-color: #4AAEC9;
+        color: #FFFFFF;
+        text-decoration: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
+
+    @media screen and (max-width: 600px) {
+        .login-container {
+            border-radius: 50зч; /* убираем скругление углов */
+            padding: 20px 0; /* убираем вертикальный отступ и оставляем горизонтальный */
+            width: 80%; /* растягиваем на всю ширину */
+            box-sizing: border-box; /* не учитываем padding в общей ширине */
+        }
+
+        .login-form {
+            width: 80%;
+        }
+    }
+</style>
+
+<div style="background-color: #A8D4D7; height: 100vh; display: flex; justify-content: center; align-items: center;">
+    <div class="login-container">
+        <div style="margin-bottom: 20px;">
+            <img src="{% static 'img/logo2.png' %}" alt="СardioKit" style="width: 100px;">
+        </div>
+        <h1>CardioKit</h1>
+        <div class="login-form">
+            <form method="post">
+                {% csrf_token %}
+                <div style="margin-bottom: 10px;">
+                    <input type="text" name="username" placeholder="Имя пользователя" class="form-control">
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <input type="password" name="password" placeholder="Пароль" class="form-control">
+                </div>
+                <button class="btn btn-success rounded-pill px-3" type="submit">Войти</button>
+            </form>
+            <br>
+            <div>
+                <p>Еще нет аккаунта?</p>
+                <a href="{% url 'register' %}" class="register-link">Зарегистрироваться</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

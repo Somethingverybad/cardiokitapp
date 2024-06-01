@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Data Plot</title>
+    <!-- Подключаем библиотеку Plotly -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+
+    <!-- График будет отображен здесь -->
+    <div id="plot" style="width: 800px; height: 600px;" data-user-id="{{ user_id }}">
+
+    <script>
+        // Функция для загрузки и отображения данных на графике
+        function loadPlotData() {
+            // Получаем ID пользователя из атрибута data
+            var user_id = document.getElementById('plot').getAttribute('data-user-id');
+
+            // Формируем URL для запроса
+            var url = {% url 'plot_patient_data' %};
+
+            fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                // Разделяем полученные данные на оси X и Y
+                var dates_times = data.dates_times;
+                var spo2_values = data.spo2_values;
+                var heart_rate_values = data.heart_rate_values;
+                var body_temperature_values = data.body_temperature_values;
+
+                // Создаем данные для графика
+                var spo2_trace = {
+                    x: dates_times,
+                    y: spo2_values,
+                    mode: 'lines',
+                    name: 'SpO2'
+                };
+                var heart_rate_trace = {
+                    x: dates_times,
+                    y: heart_rate_values,
+                    mode: 'lines',
+                    name: 'Heart Rate'
+                };
+                var body_temperature_trace = {
+                    x: dates_times,
+                    y: body_temperature_values,
+                    mode: 'lines',
+                    name: 'Body Temperature'
+                };
+
+                // Создаем макет графика
+                var layout = {
+                    title: 'Patient Data',
+                    xaxis: { title: 'Date and Time' },
+                    yaxis: { title: 'Value' }
+                };
+
+                // Отображаем график
+                Plotly.newPlot('plot', [spo2_trace, heart_rate_trace, body_temperature_trace], layout);
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Загружаем данные при загрузке страницы
+        window.onload = loadPlotData;
+    </script>
+        </div>
+</body>
+</html>
